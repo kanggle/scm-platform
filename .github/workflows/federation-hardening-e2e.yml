@@ -88,8 +88,8 @@ jobs:
           :projects:finance-platform:apps:account-service:bootJar
           :projects:wms-platform:apps:master-service:bootJar
           :projects:wms-platform:apps:admin-service:bootJar
-          :projects:scm-platform:apps:procurement-service:bootJar
-          :projects:scm-platform:apps:inventory-visibility-service:bootJar
+          :apps:procurement-service:bootJar
+          :apps:inventory-visibility-service:bootJar
           :projects:erp-platform:apps:masterdata-service:bootJar
           :projects:platform-console:apps:console-bff:bootJar
           --no-daemon --stacktrace
@@ -108,8 +108,8 @@ jobs:
             projects/finance-platform/apps/account-service/build/libs/account-service.jar
             projects/wms-platform/apps/master-service/build/libs/master-service.jar
             projects/wms-platform/apps/admin-service/build/libs/admin-service.jar
-            projects/scm-platform/apps/procurement-service/build/libs/procurement-service.jar
-            projects/scm-platform/apps/inventory-visibility-service/build/libs/inventory-visibility-service.jar
+            apps/procurement-service/build/libs/procurement-service.jar
+            apps/inventory-visibility-service/build/libs/inventory-visibility-service.jar
             projects/erp-platform/apps/masterdata-service/build/libs/masterdata-service.jar
             projects/platform-console/apps/console-bff/build/libs/console-bff.jar
           retention-days: 1
@@ -185,12 +185,12 @@ jobs:
              projects/wms-platform/apps/admin-service/build/libs/admin-service.jar
 
           # scm-platform (procurement-service + inventory-visibility-service — TASK-MONO-162)
-          mkdir -p projects/scm-platform/apps/procurement-service/build/libs/
+          mkdir -p apps/procurement-service/build/libs/
           mv artifact-staging/scm-platform/apps/procurement-service/build/libs/procurement-service.jar \
-             projects/scm-platform/apps/procurement-service/build/libs/procurement-service.jar
-          mkdir -p projects/scm-platform/apps/inventory-visibility-service/build/libs/
+             apps/procurement-service/build/libs/procurement-service.jar
+          mkdir -p apps/inventory-visibility-service/build/libs/
           mv artifact-staging/scm-platform/apps/inventory-visibility-service/build/libs/inventory-visibility-service.jar \
-             projects/scm-platform/apps/inventory-visibility-service/build/libs/inventory-visibility-service.jar
+             apps/inventory-visibility-service/build/libs/inventory-visibility-service.jar
 
           # erp-platform
           mkdir -p projects/erp-platform/apps/masterdata-service/build/libs/

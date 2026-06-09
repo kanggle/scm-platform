@@ -40,7 +40,7 @@ jobs:
   #   ecommerce  projects/ecommerce-microservices-platform/**
   #   iam        projects/iam-platform/**
   #   fan        projects/fan-platform/**
-  #   scm        projects/scm-platform/**
+  #   scm        **
   #   contracts  projects/*/specs/contracts/**
   #              → force-full e2e: cross-service consumer breakage gate
   #              (single project's contract change → 5 project + frontend smoke
@@ -175,9 +175,9 @@ jobs:
               - '!projects/fan-platform/tasks/**'
               - '!projects/fan-platform/**/*.md'
             scm:
-              - 'projects/scm-platform/**'
-              - '!projects/scm-platform/tasks/**'
-              - '!projects/scm-platform/**/*.md'
+              - '**'
+              - '!tasks/**'
+              - '!**/*.md'
             finance:
               - 'projects/finance-platform/**'
               - '!projects/finance-platform/tasks/**'
@@ -356,9 +356,9 @@ jobs:
         # TASK-SCM-BE-003: inventory-visibility-service
         run: >-
           ./gradlew
-          :projects:scm-platform:apps:gateway-service:check
-          :projects:scm-platform:apps:procurement-service:check
-          :projects:scm-platform:apps:inventory-visibility-service:check
+          :apps:gateway-service:check
+          :apps:procurement-service:check
+          :apps:inventory-visibility-service:check
           --no-daemon --stacktrace
 
       - name: Build and check finance-platform backend (Docker-free)
@@ -601,9 +601,9 @@ jobs:
       - name: Build scm-platform boot jars
         run: >-
           ./gradlew
-          :projects:scm-platform:apps:gateway-service:bootJar
-          :projects:scm-platform:apps:procurement-service:bootJar
-          :projects:scm-platform:apps:inventory-visibility-service:bootJar
+          :apps:gateway-service:bootJar
+          :apps:procurement-service:bootJar
+          :apps:inventory-visibility-service:bootJar
           --no-daemon --stacktrace
 
       - name: Upload scm-platform boot jars
@@ -611,13 +611,13 @@ jobs:
         with:
           name: scm-platform-boot-jars
           # upload-artifact@v4 strips the longest common prefix
-          # (`projects/scm-platform/apps/`) so the artifact root contains
+          # (`apps/`) so the artifact root contains
           # `<service>/build/libs/<service>.jar`. The scm-platform-e2e job
           # restores them to their canonical locations.
           path: |
-            projects/scm-platform/apps/gateway-service/build/libs/gateway-service.jar
-            projects/scm-platform/apps/procurement-service/build/libs/procurement-service.jar
-            projects/scm-platform/apps/inventory-visibility-service/build/libs/inventory-visibility-service.jar
+            apps/gateway-service/build/libs/gateway-service.jar
+            apps/procurement-service/build/libs/procurement-service.jar
+            apps/inventory-visibility-service/build/libs/inventory-visibility-service.jar
           retention-days: 1
 
   frontend-unit-tests:
@@ -1104,8 +1104,8 @@ jobs:
       - name: Run SCM integration suites
         run: >-
           ./gradlew
-          :projects:scm-platform:apps:procurement-service:integrationTest
-          :projects:scm-platform:apps:inventory-visibility-service:integrationTest
+          :apps:procurement-service:integrationTest
+          :apps:inventory-visibility-service:integrationTest
           --no-daemon --stacktrace
 
       - name: Upload SCM integration test reports on failure
@@ -1114,8 +1114,8 @@ jobs:
         with:
           name: scm-integration-test-reports
           path: |
-            projects/scm-platform/apps/*/build/reports/tests/integrationTest/
-            projects/scm-platform/apps/*/build/test-results/integrationTest/
+            apps/*/build/reports/tests/integrationTest/
+            apps/*/build/test-results/integrationTest/
           retention-days: 7
 
   finance-integration-tests:
@@ -1591,21 +1591,21 @@ jobs:
         # actions/upload-artifact@v4 strips the longest common prefix when
         # multiple paths are uploaded. The scm-platform-boot-jars artifact
         # therefore contains `<service>/build/libs/<service>.jar` (with
-        # `projects/scm-platform/apps/` stripped). Move them back to their
+        # `apps/` stripped). Move them back to their
         # canonical locations so the gateway/procurement/inventory-visibility
         # Dockerfiles COPY the right path during the docker build below, AND
         # so ScmPlatformE2ETestBase's locateOptionalJar fallback can resolve
         # them when the dev-path system properties are unset.
         run: |
-          mkdir -p projects/scm-platform/apps/gateway-service/build/libs/
-          mkdir -p projects/scm-platform/apps/procurement-service/build/libs/
-          mkdir -p projects/scm-platform/apps/inventory-visibility-service/build/libs/
+          mkdir -p apps/gateway-service/build/libs/
+          mkdir -p apps/procurement-service/build/libs/
+          mkdir -p apps/inventory-visibility-service/build/libs/
           mv artifact-staging-scm/gateway-service/build/libs/gateway-service.jar \
-             projects/scm-platform/apps/gateway-service/build/libs/gateway-service.jar
+             apps/gateway-service/build/libs/gateway-service.jar
           mv artifact-staging-scm/procurement-service/build/libs/procurement-service.jar \
-             projects/scm-platform/apps/procurement-service/build/libs/procurement-service.jar
+             apps/procurement-service/build/libs/procurement-service.jar
           mv artifact-staging-scm/inventory-visibility-service/build/libs/inventory-visibility-service.jar \
-             projects/scm-platform/apps/inventory-visibility-service/build/libs/inventory-visibility-service.jar
+             apps/inventory-visibility-service/build/libs/inventory-visibility-service.jar
 
       - name: Verify Docker (Testcontainers prerequisite)
         run: docker info
@@ -1615,14 +1615,14 @@ jobs:
         # rationale (Docker 28 + Testcontainers ImageFromDockerfile hang).
         run: |
           docker build -t scm-platform-gateway-service:e2e \
-            -f projects/scm-platform/apps/gateway-service/Dockerfile \
-            projects/scm-platform/apps/gateway-service/
+            -f apps/gateway-service/Dockerfile \
+            apps/gateway-service/
           docker build -t scm-platform-procurement-service:e2e \
-            -f projects/scm-platform/apps/procurement-service/Dockerfile \
-            projects/scm-platform/apps/procurement-service/
+            -f apps/procurement-service/Dockerfile \
+            apps/procurement-service/
           docker build -t scm-platform-inventory-visibility-service:e2e \
-            -f projects/scm-platform/apps/inventory-visibility-service/Dockerfile \
-            projects/scm-platform/apps/inventory-visibility-service/
+            -f apps/inventory-visibility-service/Dockerfile \
+            apps/inventory-visibility-service/
 
       - name: Run scm-platform cross-service e2e smoke suite
         # ADR-MONO-010 D3 — PR-time runs the @Tag("smoke") subset only via
@@ -1632,10 +1632,10 @@ jobs:
         # dev convenience.
         run: >-
           ./gradlew
-          :projects:scm-platform:tests:e2e:e2eSmokeTest
-          -x :projects:scm-platform:apps:gateway-service:bootJar
-          -x :projects:scm-platform:apps:procurement-service:bootJar
-          -x :projects:scm-platform:apps:inventory-visibility-service:bootJar
+          :tests:e2e:e2eSmokeTest
+          -x :apps:gateway-service:bootJar
+          -x :apps:procurement-service:bootJar
+          -x :apps:inventory-visibility-service:bootJar
           -Dscm.e2e.gatewayImage=scm-platform-gateway-service:e2e
           -Dscm.e2e.procurementImage=scm-platform-procurement-service:e2e
           -Dscm.e2e.inventoryVisibilityImage=scm-platform-inventory-visibility-service:e2e
@@ -1647,8 +1647,8 @@ jobs:
         with:
           name: scm-platform-e2e-test-reports
           path: |
-            projects/scm-platform/tests/e2e/build/reports/tests/e2eSmokeTest/
-            projects/scm-platform/tests/e2e/build/test-results/e2eSmokeTest/
+            tests/e2e/build/reports/tests/e2eSmokeTest/
+            tests/e2e/build/test-results/e2eSmokeTest/
           retention-days: 7
 
   # ---------------------------------------------------------------------------

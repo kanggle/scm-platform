@@ -1,4 +1,4 @@
-rootProject.name = 'monorepo-lab'
+rootProject.name = 'scm-platform'
 
 // Shared libraries (at repo root)
 include(
@@ -73,10 +73,10 @@ include(
 
 // Project: scm-platform
 include(
-    'projects:scm-platform:apps:gateway-service',
-    'projects:scm-platform:apps:procurement-service',
-    'projects:scm-platform:apps:inventory-visibility-service',
-    'projects:scm-platform:tests:e2e'
+    'apps:gateway-service',
+    'apps:procurement-service',
+    'apps:inventory-visibility-service',
+    'tests:e2e'
 )
 
 // Project: finance-platform
